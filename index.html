@@ -79,6 +79,7 @@ td input{font-size:12px;padding:6px;min-width:150px}
 .fld input,.fld select{font-size:13px;padding:7px 9px}
 .fld select{appearance:auto;background:var(--surface);color:var(--ink);text-overflow:ellipsis}
 .fld .other{margin-top:4px}
+#planBody select:disabled,#planBody input:disabled,#weekTheme:disabled{opacity:1;color:var(--ink);background:var(--surface);-webkit-text-fill-color:var(--ink)}
 .fld .val{font-size:13px;padding:2px 0;overflow-wrap:anywhere}
 .fld .val.none{color:var(--muted)}
 @media (max-width:560px){.dgrid{grid-template-columns:minmax(0,1fr)}}
@@ -162,6 +163,8 @@ details.grp .dgrid{padding:0 0 12px}
 .fld label{display:flex;align-items:center}
 .item.extra{border-style:dashed}
 .daybar{gap:8px}.navbtn{font-size:18px;line-height:1;padding:6px 12px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.savebar{position:sticky;bottom:0;background:var(--bg);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);z-index:5}
+.th-skin .savebar{background:var(--skin-bg)}
 #pinGate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px}
 .pinCard{display:grid;gap:10px;width:min(320px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
 .pinTitle{font-size:22px;font-weight:bold}
@@ -217,12 +220,13 @@ details li{margin:2px 0}
       <span class="grow"></span>
       <button class="ghost" id="expandAll">Expand all</button><button class="ghost" id="collapseAll">Collapse all</button>
     </div>
+    <p class="status" id="planLockNote" hidden>The plan is set by Mom &amp; Dad. Use the list below for anything you need this week.</p>
     <div id="planBody" class="days"></div>
-    <div class="save"><button class="primary" id="savePlan">Save week</button><span class="status" id="planStatus"></span></div>
     <div class="sec c-notes" id="reqHead">Nanny's list for the week — what she needs or wants</div>
-    <p class="status">Paste or type anything: supplies, groceries, craft materials, requests. Mom &amp; Dad see it here.</p>
+    <p class="status">Paste or type anything: supplies, groceries, craft materials, requests. Tap <b>Save week</b> below when done.</p>
     <textarea id="reqText" rows="7" placeholder="Paste your list here…&#10;e.g. Green paint, paper plates, dinosaur stickers, more Greek yogurt"></textarea>
-    <div class="save"><button class="primary" id="saveReq">Save list</button><span class="status" id="reqStatus"></span></div>
+    <p class="status" id="reqStatus"></p>
+    <div class="save savebar"><button class="primary" id="savePlan">Save week</button><span class="status" id="planStatus"></span></div>
     <p class="status" id="planRO" hidden>Plan is view-only. <button class="ghost" id="unlockPlan">Edit plan (parents)</button></p>
   </section>
 
@@ -400,6 +404,7 @@ function groupHtml(gk,d){const o=draft[d]||{};
 const PLAN_LABELS={theme:"Theme",amSnack:"Morning snack",lunch:"Lunch",pmSnack:"Afternoon snack",learn1:"Learning #1",learn2:"Learning #2",activity:"Activity / outing",lily:"Lily after school"};
 const GROUPS=[["food","Teddy — food",["amSnack","lunch","pmSnack"]],["learn","Teddy — learning",["learn1","learn2"]],["act","Activities",["activity","lily"]]];
 const ALLF=GROUPS.flatMap(g=>g[2]);
+let planLocked=false;
 let draftTheme="", draft={}, draftWk=null, planDirty=false, planView="day", openState={};
 function loadDraft(){draft=JSON.parse(JSON.stringify((plan[iso(wk)]||{}).days||{}));draftTheme=(plan[iso(wk)]||{}).theme||"";draftWk=iso(wk);planDirty=false;}
 function markDirty(){planDirty=true;$("#planStatus").textContent="Unsaved changes";}
@@ -435,11 +440,16 @@ function renderPlan(){
       return `<details class="dcard tcard c-${gk}" data-k="${k}" ${isOpen(k,gi===0)?"open":""}><summary class="dhead"><span class="chev"></span>${gl}<span class="dmeta">${cnt(tot,all)}</span></summary><div class="dbody">`+
         DAYS.map((d,i)=>{const kk=`${k}-${d}`,fs=groupFields(gk,d);return `<details class="grp" data-k="${kk}" ${isOpen(kk,true)?"open":""}><summary class="dgroup"><span class="chev"></span>${d} ${dates[i].toLocaleDateString("en-US",{month:"short",day:"numeric"})}${i===todayIdx?" • today":""}${cnt(filled(d,fs),fs.length)}</summary><div class="dgrid">${groupHtml(gk,d)}</div></details>`}).join("")+`</div></details>`;}).join("");
   }
+  lockPlan();
 }
+function lockPlan(){ if(!planLocked) return;
+  document.querySelectorAll("#planBody select,#planBody input,#weekTheme").forEach(x=>x.disabled=true);
+  document.querySelectorAll("#planBody .addbtn,#planBody .rm").forEach(x=>x.hidden=true);
+  $("#planLockNote").hidden=false; }
 function setPlanMode(){canEditPlan=true;$("#savePlan").hidden=false;$("#planRO").hidden=true;renderPlan();}
 $("#unlockPlan").onclick=()=>setPlanMode();
-$("#prevWk").onclick=()=>{if(planDirty&&!$("#planStatus").dataset.warned){$("#planStatus").textContent="Save first, or tap again to switch weeks without saving.";$("#planStatus").dataset.warned=1;return;}delete $("#planStatus").dataset.warned;planDirty=false;$("#planStatus").textContent="";wk.setDate(wk.getDate()-7);renderPlan()};
-$("#nextWk").onclick=()=>{if(planDirty&&!$("#planStatus").dataset.warned){$("#planStatus").textContent="Save first, or tap again to switch weeks without saving.";$("#planStatus").dataset.warned=1;return;}delete $("#planStatus").dataset.warned;planDirty=false;$("#planStatus").textContent="";wk.setDate(wk.getDate()+7);renderPlan()};
+$("#prevWk").onclick=()=>{if((planDirty||reqDirty)&&!$("#planStatus").dataset.warned){$("#planStatus").textContent="Save first, or tap again to switch weeks without saving.";$("#planStatus").dataset.warned=1;return;}delete $("#planStatus").dataset.warned;planDirty=false;$("#planStatus").textContent="";wk.setDate(wk.getDate()-7);renderPlan()};
+$("#nextWk").onclick=()=>{if((planDirty||reqDirty)&&!$("#planStatus").dataset.warned){$("#planStatus").textContent="Save first, or tap again to switch weeks without saving.";$("#planStatus").dataset.warned=1;return;}delete $("#planStatus").dataset.warned;planDirty=false;$("#planStatus").textContent="";wk.setDate(wk.getDate()+7);renderPlan()};
 document.querySelectorAll("#viewSeg button").forEach(b=>b.addEventListener("click",()=>{planView=b.dataset.v;renderPlan();}));
 $("#expandAll").onclick=()=>{document.querySelectorAll("#planBody details").forEach(x=>{x.open=true;openState[x.dataset.k]=true});};
 $("#collapseAll").onclick=()=>{document.querySelectorAll("#planBody details").forEach(x=>{x.open=false;openState[x.dataset.k]=false});};
@@ -461,23 +471,32 @@ function loadReq(){
   const k=iso(wk); if(reqWk===k) return; reqWk=k; reqDirty=false; $("#reqText").value=""; $("#reqStatus").textContent="";
   $("#reqHead").textContent="Nanny's list for the week of "+wk.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" — what she needs or wants";
   if(!db) return; if(reqUnsub) reqUnsub();
-  reqUnsub=db.doc("requests/"+k).onSnapshot(s=>{ if(s.exists&&!reqDirty&&!s.metadata.hasPendingWrites){const d=s.data(); $("#reqText").value=d.text||""; $("#reqStatus").textContent=d.savedAt?"Saved "+new Date(d.savedAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"";} },()=>{});
+  reqUnsub=db.doc("requests/"+k).onSnapshot(s=>{ if(s.exists&&!reqDirty&&!s.metadata.hasPendingWrites){const d=s.data(); $("#reqText").value=d.text||""; $("#reqStatus").textContent=d.savedAt?"List saved "+new Date(d.savedAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"";} },()=>{});
 }
-$("#reqText").addEventListener("input",()=>{reqDirty=true;$("#reqStatus").textContent="Not saved yet";});
-$("#saveReq").addEventListener("click",async()=>{
-  if(!db) return; $("#reqStatus").textContent="Saving…";
-  try{ await db.doc("requests/"+iso(wk)).set({week:iso(wk),text:$("#reqText").value,savedAt:Date.now()}); reqDirty=false;
-       $("#reqStatus").textContent="Saved "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); }
-  catch(e){ $("#reqStatus").textContent="Couldn't save ("+(e.code||"error")+"). Check your connection and try again."; }
-});
+$("#reqText").addEventListener("input",()=>{reqDirty=true;$("#planStatus").textContent="Unsaved changes";});
 $("#gotoReq").addEventListener("click",()=>{ wk=monday(parse($("#date").value)); planDirty=false; $("#tab-plan").click(); renderPlan(); $("#reqText").scrollIntoView({block:"center"}); $("#reqText").focus(); });
+// one Save button for the whole week: saves the plan (Mom & Dad) and the nanny's list, whichever changed
 $("#savePlan").addEventListener("click",async()=>{
-  if(!db) return; const days={};
-  DAYS.forEach(d=>{days[d]={};const o=draft[d]||{};ALLF.forEach(f=>days[d][f]=((o[f])||"").trim());
-    Object.keys(o).forEach(f=>{if(isExtraKey(f)){const v=(o[f]||"").trim();if(v)days[d][f]=v;}});});
-  $("#planStatus").textContent="Saving…";
-  try{ await db.doc("plans/"+iso(wk)).set({week:iso(wk),theme:draftTheme.trim(),days}); planDirty=false; $("#planStatus").textContent="Saved"; renderPlan(); }
-  catch(e){ $("#planStatus").textContent=e.code==="not_granted"||e.code==="permission_denied"?"Only Mom & Dad can change the plan.":"Couldn't save ("+(e.code||"error")+"). Try again."; }
+  if(!db) return;
+  if(!planDirty&&!reqDirty){$("#planStatus").textContent="Nothing new to save.";return;}
+  const btn=$("#savePlan"); btn.disabled=true; $("#planStatus").textContent="Saving…";
+  const msgs=[]; let failed=false;
+  if(planDirty){
+    const days={};
+    DAYS.forEach(d=>{days[d]={};const o=draft[d]||{};ALLF.forEach(f=>days[d][f]=((o[f])||"").trim());
+      Object.keys(o).forEach(f=>{if(isExtraKey(f)){const v=(o[f]||"").trim();if(v)days[d][f]=v;}});});
+    try{ await db.doc("plans/"+iso(wk)).set({week:iso(wk),theme:draftTheme.trim(),days}); planDirty=false; }
+    catch(e){ failed=true; if(e.code==="not_granted"||e.code==="permission_denied") planDirty=false; msgs.push(e.code==="not_granted"||e.code==="permission_denied"?"Plan changes weren't saved — only Mom & Dad can change the plan.":"Couldn't save the plan ("+(e.code||"error")+"). Check your connection and tap Save week again."); }
+  }
+  if(reqDirty){
+    const at=Date.now();
+    try{ await db.doc("requests/"+iso(wk)).set({week:iso(wk),text:$("#reqText").value,savedAt:at}); reqDirty=false;
+         $("#reqStatus").textContent="List saved "+new Date(at).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}); }
+    catch(e){ failed=true; msgs.push("Couldn't save the list ("+(e.code||"error")+"). Check your connection and tap Save week again."); }
+  }
+  btn.disabled=false; delete $("#planStatus").dataset.warned;
+  $("#planStatus").textContent=failed?msgs.join(" "):"Saved "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  if(!planDirty) renderPlan();
 });
 
 
@@ -583,6 +602,7 @@ renderChecklist(); renderPlan();
   if(PIN){try{ROLE=(await gs("login")).role;}catch(e){PIN="";}}
   if(!PIN) await askPin();
   $("#who").textContent=ROLE==="parent"?"Signed in as Mom & Dad":"Signed in as Nanny";
+  planLocked=ROLE!=="parent";
   db=makeDb();
   try{await db.refresh();}catch(e){$("#offline").textContent="Can't reach the family sheet right now. Check your connection, then reload.";$("#offline").hidden=false;}
   setPlanMode();
