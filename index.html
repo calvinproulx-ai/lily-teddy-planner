@@ -590,6 +590,17 @@ function renderLists(){
 $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[data-gowk]"); if(!b) return;
   if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
   wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
+// keep every phone on the newest version: if a newer page is published, reload (only when nothing is unsaved)
+const BUILD="2026-11-06d";
+async function checkForUpdate(){
+  try{
+    const t=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(r=>r.text());
+    const m=t.match(/const BUILD="([^"]+)"/);
+    if(m&&m[1]!==BUILD&&!(dayDirty||planDirty||reqDirty)) location.reload();
+  }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkForUpdate(); });
+setTimeout(checkForUpdate,3000); setInterval(checkForUpdate,600000);
 // warn before closing the page with unsaved work
 window.addEventListener("beforeunload",e=>{ if(dayDirty||planDirty||reqDirty){ e.preventDefault(); e.returnValue=""; } });
 // ---------- Google Sheets connection ----------
