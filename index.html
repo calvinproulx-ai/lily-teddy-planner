@@ -176,9 +176,6 @@ details.grp .dgrid{padding:0 0 12px}
 .listtext{white-space:pre-wrap;font-size:13px}
 #listsBox .entry{margin-bottom:8px}
 .linkish{font:inherit;background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0}
-#pinGate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px}
-.pinCard{display:grid;gap:10px;width:min(320px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
-.pinTitle{font-size:22px;font-weight:bold}
 .whoLine{margin:-6px 0 12px}.linkish{font:inherit;font-size:12px;background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;padding:0}
 .log{display:grid;gap:8px}
 .entry{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
@@ -206,7 +203,6 @@ details li{margin:2px 0}
   </nav>
   <div id="offline" class="note" hidden></div>
 
-  <div id="pinGate" hidden><form id="pinForm" class="pinCard"><div class="pinTitle">Lily &amp; Teddy</div><label for="pinIn">Enter your family PIN</label><input id="pinIn" type="password" inputmode="numeric" autocomplete="current-password"><button class="primary" type="submit">Open planner</button><p class="status" id="pinMsg" role="status"></p></form></div>
 
   <section id="v-today">
     <div class="bar daybar"><button class="ghost navbtn" id="prevDay" aria-label="Previous day">‹</button><label for="date" class="sr">Date</label><input type="date" id="date"><button class="ghost navbtn" id="nextDay" aria-label="Next day">›</button><span class="status" id="dayname"></span><button class="linkish" id="todayBtn" hidden>Back to today</button></div>
@@ -597,12 +593,12 @@ $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[dat
 // warn before closing the page with unsaved work
 window.addEventListener("beforeunload",e=>{ if(dayDirty||planDirty||reqDirty){ e.preventDefault(); e.returnValue=""; } });
 // ---------- Google Sheets connection ----------
-let PIN="", ROLE="";
+let ROLE="parent";
 const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 function gs(action,payload){
   const url=(window.PLANNER_API_URL||"").trim();
   if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url)) return Promise.reject({code:"unavailable",message:"The planner isn't connected to its Google Sheet yet (config.js)."});
-  return fetch(url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({pin:PIN,action,payload}),redirect:"follow"})
+  return fetch(url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,payload}),redirect:"follow"})
     .then(r=>r.json(),()=>{throw {code:"unavailable",message:"Network error"}})
     .then(j=>{ if(j&&j.ok) return j.data; const m=String(j&&j.error||"error");
       throw {code:/not_granted/.test(m)?"not_granted":/bad_pin/.test(m)?"bad_pin":"unavailable",message:m}; });
@@ -628,18 +624,12 @@ function makeDb(){
   };
   return api;
 }
-function askPin(msg){return new Promise(done=>{
-  const o=$("#pinGate"); o.hidden=false; $("#pinMsg").textContent=msg||""; $("#pinIn").value=""; setTimeout(()=>$("#pinIn").focus(),50);
-  $("#pinForm").onsubmit=async e=>{e.preventDefault(); PIN=$("#pinIn").value.trim(); if(!PIN) return;
-    $("#pinMsg").textContent="Checking…";
-    try{const r=await gs("login"); ROLE=r.role; store.set("ltPin",PIN); o.hidden=true; done();}
-    catch(err){$("#pinMsg").textContent=err.code==="bad_pin"?"That PIN isn't right. Try again.":"Can't reach the family sheet. Check your connection and try again.";}};
-});}
 // boot
 $("#date").value=iso(new Date());
 renderChecklist(); renderPlan();
 (async()=>{
-  PIN="open"; ROLE="parent"; planLocked=false;   // no PIN: anyone with the link can use the planner
+  planLocked=false;   // no PINs: anyone with the link can use the planner
+  try{localStorage.removeItem("ltPin")}catch(e){}
   db=makeDb();
   try{await db.refresh();}catch(e){$("#offline").textContent="Can't reach the family sheet right now. Check your connection, then reload.";$("#offline").hidden=false;}
   setPlanMode();
