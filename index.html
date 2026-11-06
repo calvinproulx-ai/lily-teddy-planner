@@ -173,6 +173,9 @@ details.grp .dgrid{padding:0 0 12px}
 .daybar{gap:8px}.navbtn{font-size:18px;line-height:1;padding:6px 12px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .savebar{position:sticky;bottom:0;background:var(--bg);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);z-index:5}
 .th-skin .savebar{background:var(--skin-bg)}
+.listtext{white-space:pre-wrap;font-size:13px}
+#listsBox .entry{margin-bottom:8px}
+.linkish{font:inherit;background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0}
 #pinGate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px}
 .pinCard{display:grid;gap:10px;width:min(320px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
 .pinTitle{font-size:22px;font-weight:bold}
@@ -202,7 +205,7 @@ details li{margin:2px 0}
     <button id="tab-ideas" data-view="ideas" aria-selected="false">Ideas</button>
   </nav>
   <div id="offline" class="note" hidden></div>
-  <p class="status whoLine"><span id="who"></span> · <button class="linkish" id="switchPin">Switch PIN</button></p>
+
   <div id="pinGate" hidden><form id="pinForm" class="pinCard"><div class="pinTitle">Lily &amp; Teddy</div><label for="pinIn">Enter your family PIN</label><input id="pinIn" type="password" inputmode="numeric" autocomplete="current-password"><button class="primary" type="submit">Open planner</button><p class="status" id="pinMsg" role="status"></p></form></div>
 
   <section id="v-today">
@@ -234,11 +237,12 @@ details li{margin:2px 0}
     <p class="status">Paste or type anything: supplies, groceries, craft materials, requests. Tap <b>Save week</b> below when done.</p>
     <textarea id="reqText" rows="7" placeholder="Paste your list here…&#10;e.g. Green paint, paper plates, dinosaur stickers, more Greek yogurt"></textarea>
     <p class="status" id="reqStatus"></p>
+    <div id="reqOther"></div>
     <div class="save savebar"><button class="primary" id="savePlan">Save week</button><span class="status" id="planStatus"></span></div>
     <p class="status" id="planRO" hidden>Plan is view-only. <button class="ghost" id="unlockPlan">Edit plan (parents)</button></p>
   </section>
 
-  <section id="v-log" hidden><div class="log" id="logList"><p class="empty">Loading saved days…</p></div></section>
+  <section id="v-log" hidden><div id="listsBox"></div><div class="sec">Daily checklists</div><div class="log" id="logList"><p class="empty">Loading saved days…</p></div></section>
 
   <section id="v-ideas" hidden><div id="ideas"></div></section>
 </div>
@@ -434,6 +438,7 @@ function renderPlan(){
   $("#wkLabel").textContent="Week of "+wk.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
   if(document.activeElement!==$("#weekTheme")) $("#weekTheme").value=draftTheme;
   applyTheme("#v-plan",draftTheme,"#planBanner",esc(draftTheme),"");
+  if(typeof renderLists==="function") renderLists();
   loadReq();
   document.querySelectorAll("#viewSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===planView));
   const todayIso=iso(new Date()); const dates=DAYS.map((d,i)=>{const x=new Date(wk);x.setDate(x.getDate()+i);return x});
@@ -574,6 +579,23 @@ function renderLog(docs){
   }).join("");
 }
 
+
+// all of the nanny's weekly lists (Past days tab) + a pointer when another week has a list
+let reqAll=[];
+const wkLabel=k=>parse(k).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+const stampLabel=ms=>ms?new Date(ms).toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+function renderLists(){
+  const box=$("#listsBox"); if(!box) return;
+  const L=reqAll.filter(r=>(r.text||"").trim());
+  box.innerHTML=`<div class="sec c-notes">Nanny's lists (what she needs)</div>`+(L.length?L.map(r=>`<div class="entry"><h3><span>Week of ${esc(wkLabel(r.week))}</span><span class="status">${esc(stampLabel(r.savedAt))}</span></h3><div class="listtext">${esc(r.text)}</div></div>`).join(""):`<p class="empty">No lists yet. Her lists from the Week plan tab show up here.</p>`);
+  const cur=iso(wk), others=L.filter(r=>r.week!==cur);
+  $("#reqOther").innerHTML=others.length?`<p class="note">She also has a list for ${others.map(r=>`<button class="linkish" data-gowk="${r.week}">week of ${esc(wkLabel(r.week))}</button>`).join(", ")}. You can see every list under <b>Past days</b>.</p>`:"";
+}
+$("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[data-gowk]"); if(!b) return;
+  if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
+  wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
+// warn before closing the page with unsaved work
+window.addEventListener("beforeunload",e=>{ if(dayDirty||planDirty||reqDirty){ e.preventDefault(); e.returnValue=""; } });
 // ---------- Google Sheets connection ----------
 let PIN="", ROLE="";
 const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
@@ -617,23 +639,20 @@ function askPin(msg){return new Promise(done=>{
 $("#date").value=iso(new Date());
 renderChecklist(); renderPlan();
 (async()=>{
-  PIN=store.get("ltPin");
-  if(PIN){try{ROLE=(await gs("login")).role;}catch(e){PIN="";}}
-  if(!PIN) await askPin();
-  $("#who").textContent=ROLE==="parent"?"Signed in as Mom & Dad":"Signed in as Nanny";
-  planLocked=ROLE!=="parent";
+  PIN="open"; ROLE="parent"; planLocked=false;   // no PIN: anyone with the link can use the planner
   db=makeDb();
   try{await db.refresh();}catch(e){$("#offline").textContent="Can't reach the family sheet right now. Check your connection, then reload.";$("#offline").hidden=false;}
   setPlanMode();
   reqWk=null; loadReq();
   db.collection("plans").onSnapshot(s=>{plan={};s.docs.forEach(d=>plan[d.id]=d.data());renderPlan();renderChecklist();},()=>{});
+  db.collection("requests").orderBy("savedAt","desc").onSnapshot(s=>{reqAll=s.docs.map(d=>d.data());renderLists();},()=>{});
   db.collection("reports").orderBy("date","desc").limit(60).onSnapshot(s=>renderLog(s.docs.map(d=>d.data())),()=>renderLog([]));
   loadDay();
   const refresh=()=>{ if(!planDirty&&!reqDirty) db.refresh().catch(()=>{}); };
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") refresh(); });
   setInterval(refresh,120000);
 })();
-$("#switchPin").addEventListener("click",()=>{store.del("ltPin");location.reload();});
+
 </script>
 
 </body></html>
