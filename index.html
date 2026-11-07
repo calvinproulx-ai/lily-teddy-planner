@@ -4,6 +4,8 @@
 <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Lily%20%26%20Teddy%22%2C%22display%22%3A%22standalone%22%7D">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lily &amp; Teddy">
 <script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cherry+Swash:wght@700&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
 <style>html{color-scheme:light}body{margin:0;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 
 
@@ -138,6 +140,37 @@ details.grp .dgrid{padding:0 0 12px}
 .sticker.st2{--sc:var(--grape);top:44px;right:30%}
 @media (max-width:420px){.sticker.st2{display:none}.dh-txt{max-width:62%}.dh-title{font-size:22px}}
 #reqText{min-height:140px}
+#momNotes{min-height:80px}
+.momnote{background:var(--grape-soft,#EEE7F7);border:2px dashed var(--grape,#7D5BA6);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.momnote b{color:var(--grape,#7D5BA6)}
+.ordbox{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 12px}
+.ordlab{font-size:12px;font-weight:bold;color:var(--muted)}
+.ord{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px 6px 9px;font-size:13px;cursor:pointer;min-height:40px}
+.ord input{width:20px;height:20px;margin:0;accent-color:var(--teal,#2E9C95)}
+.ord small{color:var(--muted);font-size:11px}
+.ord:has(input:checked){border-color:var(--teal,#2E9C95);background:var(--teal-soft,#E0F0EE)}
+.ordtag{display:inline-block;font-size:11px;border-radius:999px;padding:1px 8px;margin-left:6px;background:var(--teal-soft,#E0F0EE);color:var(--ink)}
+/* ---- Alice: extra whimsy ---- */
+.th-alice{--fun:"Fredoka",var(--font);--swash:"Cherry Swash",Georgia,serif}
+.th-alice .dh-title{font-family:var(--swash);font-size:30px;letter-spacing:.01em;text-shadow:2px 2px 0 var(--sun-soft)}
+.th-alice .dh-kicker{font-family:var(--fun);letter-spacing:.08em}
+.th-alice .dh-sub,.th-alice .sec,.th-alice .dhead,.th-alice .primary,.th-alice .ord,.th-alice .dgroup{font-family:var(--fun)}
+.th-alice .skin-hero{border:3px solid var(--brand);box-shadow:5px 5px 0 var(--brand-soft)}
+.th-alice .dh-txt{border:2px dotted var(--sun);box-shadow:3px 3px 0 var(--coral-soft)}
+.th-alice .dcard{border:2px solid var(--sc);box-shadow:4px 4px 0 var(--ss,var(--brand-soft))}
+.th-alice .d0{--ss:var(--coral-soft)}.th-alice .d1{--sc:var(--brand);--ss:var(--brand-soft)}.th-alice .d2{--sc:var(--grape);--ss:var(--grape-soft)}.th-alice .d3{--sc:var(--sky);--ss:var(--sky-soft)}.th-alice .d4{--sc:var(--sun);--ss:var(--sun-soft)}
+.th-alice .dhead{font-size:15px;letter-spacing:.02em}
+.th-alice .dcard.d0 .dhead::before{content:"♥"}.th-alice .dcard.d1 .dhead::before{content:"♠"}.th-alice .dcard.d2 .dhead::before{content:"♦"}.th-alice .dcard.d3 .dhead::before{content:"♣"}.th-alice .dcard.d4 .dhead::before{content:"♥"}
+.th-alice .dcard .dhead::before{order:-1;margin-right:8px;font-size:15px}
+.th-alice .sec{border-radius:999px;border:2px dashed var(--sc);background-color:var(--ss)}
+.th-alice .primary{box-shadow:3px 3px 0 var(--coral)}
+.th-alice .momnote{font-family:var(--fun);box-shadow:3px 3px 0 var(--grape-soft)}
+.th-alice .item{border:2px solid var(--line);box-shadow:3px 3px 0 var(--brand-soft)}
+.a-rabbit{left:44%;bottom:0;width:48px;color:var(--ink)}
+.a-rabbit svg{animation:hop 1.6s ease-in-out infinite}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-7px) rotate(-4deg)}}
+@media (prefers-reduced-motion:reduce){.a-rabbit svg{animation:none!important}}
+@media (max-width:420px){.a-rabbit{left:38%;width:40px}}
 .th-alice{--brand:#2F6EA8;--brand-soft:#E3EEF8;--on-brand:#FFFFFF;--coral:#C9473F;--sun:#B88A1E;--teal:#2F6EA8;--sky:#4F8F8A;--grape:#7D5BA6;--coral-soft:#F9E3E1;--sun-soft:#F8EED3;--teal-soft:#E3EEF8;--sky-soft:#E0F0EE;--grape-soft:#EEE7F7;--skin-bg:#FBF8F2;--skin-egg:#FFFFFF;--lava:#D4A72C;--line:#E5DECF;--surface:#FFFFFF;--sec-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23C9473F' d='M20 35 C6 25 2 18 2 12 C2 6 7 3 11 3 C15 3 18 6 20 9 C22 6 25 3 29 3 C33 3 38 6 38 12 C38 18 34 25 20 35Z'/%3E%3C/svg%3E");--bar-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 40'%3E%3Cpath d='M6 8 H42 V20 C42 30 34 36 24 36 C14 36 6 30 6 20Z'/%3E%3Cpath d='M42 12 C54 12 54 26 42 26' fill='none' stroke='black' stroke-width='4'/%3E%3Crect x='2' y='36' width='46' height='3' rx='1.5'/%3E%3C/svg%3E");--skin-pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg opacity='.07'%3E%3Cpath fill='%23C9473F' d='M20 30 C10 23 8 18 8 14 C8 10 11 8 14 8 C17 8 19 10 20 12 C21 10 23 8 26 8 C29 8 32 10 32 14 C32 18 30 23 20 30Z'/%3E%3Cpath fill='%23222' d='M90 70 C80 78 76 82 82 88 C86 90 89 88 90 86 C91 88 94 90 98 88 C104 82 100 78 90 70Z M88 88 L86 96 H94 L92 88Z'/%3E%3Ccircle cx='80' cy='22' r='3' fill='%232F6EA8'/%3E%3Ccircle cx='30' cy='92' r='2.5' fill='%23D4A72C'/%3E%3C/g%3E%3C/svg%3E")}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .th-alice{--brand:#8FBCE6;--brand-soft:#17283A;--on-brand:#0E1724;--coral:#F0948C;--sun:#E8C266;--teal:#8FBCE6;--sky:#8CCFC8;--grape:#C3A8EA;--coral-soft:#3A1E1B;--sun-soft:#3A3016;--teal-soft:#17283A;--sky-soft:#163331;--grape-soft:#2A2240;--skin-bg:#15141A;--skin-egg:#1F1E26;--lava:#E8C266;--line:#35323F;--surface:#1E1D25;}}
 :root[data-theme="dark"] .th-alice{--brand:#8FBCE6;--brand-soft:#17283A;--on-brand:#0E1724;--coral:#F0948C;--sun:#E8C266;--teal:#8FBCE6;--sky:#8CCFC8;--grape:#C3A8EA;--coral-soft:#3A1E1B;--sun-soft:#3A3016;--teal-soft:#17283A;--sky-soft:#163331;--grape-soft:#2A2240;--skin-bg:#15141A;--skin-egg:#1F1E26;--lava:#E8C266;--line:#35323F;--surface:#1E1D25;}
@@ -207,6 +240,7 @@ details li{margin:2px 0}
   <section id="v-today">
     <div class="bar daybar"><button class="ghost navbtn" id="prevDay" aria-label="Previous day">‹</button><label for="date" class="sr">Date</label><input type="date" id="date"><button class="ghost navbtn" id="nextDay" aria-label="Next day">›</button><span class="status" id="dayname"></span><button class="linkish" id="todayBtn" hidden>Back to today</button></div>
     <div id="themeBox" hidden></div>
+    <div id="momToday" class="momnote" hidden></div>
     <div id="checklist"></div>
     <div class="sec c-notes">Notes for Mom &amp; Dad (only if needed)</div>
     <textarea id="notes" rows="3" placeholder="Supplies needed, concerns, wins…"></textarea>
@@ -229,10 +263,16 @@ details li{margin:2px 0}
     </div>
     <p class="status" id="planLockNote" hidden>The plan is set by Mom &amp; Dad. Use the list below for anything you need this week.</p>
     <div id="planBody" class="days"></div>
+    <div class="sec c-lily" id="momHead">Mom &amp; Dad notes for the week</div>
+    <p class="status">Changes, reminders, anything the nanny should know. She sees this on the Today tab. Saved with <b>Save week</b>.</p>
+    <textarea id="momNotes" rows="3" placeholder="e.g. Swapped Lily's Monday and Tuesday plans"></textarea>
     <div class="sec c-notes" id="reqHead">Nanny's list for the week — what she needs or wants</div>
     <p class="status">Paste or type anything: supplies, groceries, craft materials, requests. Tap <b>Save week</b> below when done.</p>
     <textarea id="reqText" rows="7" placeholder="Paste your list here…&#10;e.g. Green paint, paper plates, dinosaur stickers, more Greek yogurt"></textarea>
     <p class="status" id="reqStatus"></p>
+    <div class="ordbox" id="ordBox"><span class="ordlab">Ordered?</span>
+      <label class="ord"><input type="checkbox" id="ordGrocery"><span>Grocery</span><small id="ordGroceryAt"></small></label>
+      <label class="ord"><input type="checkbox" id="ordAmazon"><span>Amazon</span><small id="ordAmazonAt"></small></label></div>
     <div id="reqOther"></div>
     <div class="save savebar"><button class="primary" id="savePlan">Save week</button><span class="status" id="planStatus"></span></div>
     <p class="status" id="planRO" hidden>Plan is view-only. <button class="ghost" id="unlockPlan">Edit plan (parents)</button></p>
@@ -315,6 +355,7 @@ function renderChecklist(){
   const th=themeFor(ds);
   if(isDino(th)){const sk=skinFor(th); applyTheme("#v-today",th,"#themeBox",esc(th),"","");}
   else { applyTheme("#v-today","","#themeBox","","");  $("#themeBox").hidden=!th; $("#themeBox").className=th?"note":""; $("#themeBox").innerHTML=th?`<b>This week's theme:</b> ${esc(th)}`:""; }
+  { const pn=((plan[iso(monday(parse(ds)))]||{}).notes||"").trim(); $("#momToday").hidden=!pn; $("#momToday").innerHTML=pn?`<b>Note from Mom &amp; Dad:</b> ${esc(pn)}`:""; }
   const base=Object.fromEntries(ITEMS.filter(i=>i.k).map(i=>[i.k,i]));
   const mk=(k,proto,lab)=>Object.assign({},proto,{k,label:lab});
   const list=[ITEMS[0],base.amSnack,base.lunch,base.pmSnack,base.treats,ITEMS[5],
@@ -413,8 +454,8 @@ const PLAN_LABELS={theme:"Theme",amSnack:"Morning snack",lunch:"Lunch",pmSnack:"
 const GROUPS=[["food","Teddy — food",["amSnack","lunch","pmSnack"]],["learn","Teddy — learning",["learn1","learn2"]],["act","Activities",["activity","lily"]]];
 const ALLF=GROUPS.flatMap(g=>g[2]);
 let planLocked=false;
-let draftTheme="", draft={}, draftWk=null, planDirty=false, planView="day", openState={};
-function loadDraft(){draft=JSON.parse(JSON.stringify((plan[iso(wk)]||{}).days||{}));draftTheme=(plan[iso(wk)]||{}).theme||"";draftWk=iso(wk);planDirty=false;}
+let draftNotes="", draftTheme="", draft={}, draftWk=null, planDirty=false, planView="day", openState={};
+function loadDraft(){draft=JSON.parse(JSON.stringify((plan[iso(wk)]||{}).days||{}));draftTheme=(plan[iso(wk)]||{}).theme||"";draftNotes=(plan[iso(wk)]||{}).notes||"";draftWk=iso(wk);planDirty=false;}
 function markDirty(){planDirty=true;$("#planStatus").textContent="Unsaved changes";}
 const dlOf=Object.fromEntries(FIELDS);
 function fld(d,f){
@@ -433,6 +474,7 @@ function renderPlan(){
   if(draftWk!==iso(wk)||!planDirty) loadDraft();
   $("#wkLabel").textContent="Week of "+wk.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
   if(document.activeElement!==$("#weekTheme")) $("#weekTheme").value=draftTheme;
+  if(document.activeElement!==$("#momNotes")) $("#momNotes").value=draftNotes;
   applyTheme("#v-plan",draftTheme,"#planBanner",esc(draftTheme),"");
   if(typeof renderLists==="function") renderLists();
   loadReq();
@@ -473,16 +515,27 @@ $("#planBody").addEventListener("click",e=>{
 $("#planBody").addEventListener("input",e=>{const i=e.target;if(i.tagName!=="INPUT"||!i.dataset.f)return;setVal(i.dataset.d,i.dataset.f,i.value);});
 $("#planBody").addEventListener("change",e=>{const s=e.target.closest("select.pick");if(!s)return;const o=document.getElementById(s.id+"-o");
   o.hidden=s.value!=="__other"; if(s.value==="__other"){setVal(s.dataset.d,s.dataset.f,o.value);o.focus();} else setVal(s.dataset.d,s.dataset.f,s.value);});
+$("#momNotes").addEventListener("input",e=>{draftNotes=e.target.value;markDirty();});
 $("#weekTheme").addEventListener("input",e=>{draftTheme=e.target.value;markDirty();clearTimeout(window._thT);window._thT=setTimeout(renderPlan,500);applyTheme("#v-plan",draftTheme,"#planBanner",esc(draftTheme),"");});
 // nanny's weekly list
-let reqWk=null, reqUnsub=null, reqDirty=false;
+let reqWk=null, reqUnsub=null, reqDirty=false, reqOrd={grocery:"",amazon:""};
+const ordStamp=()=>new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+function showOrd(){ ["grocery","amazon"].forEach(k=>{const id=k==="grocery"?"Grocery":"Amazon"; $("#ord"+id).checked=!!reqOrd[k]; $("#ord"+id+"At").textContent=reqOrd[k]?reqOrd[k]:"";}); }
 function loadReq(){
-  const k=iso(wk); if(reqWk===k) return; reqWk=k; reqDirty=false; $("#reqText").value=""; $("#reqStatus").textContent="";
+  const k=iso(wk); if(reqWk===k) return; reqWk=k; reqDirty=false; $("#reqText").value=""; $("#reqStatus").textContent=""; reqOrd={grocery:"",amazon:""}; showOrd();
   $("#reqHead").textContent="Nanny's list for the week of "+wk.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" — what she needs or wants";
   if(!db) return; if(reqUnsub) reqUnsub();
-  reqUnsub=db.doc("requests/"+k).onSnapshot(s=>{ if(s.exists&&!reqDirty&&!s.metadata.hasPendingWrites){const d=s.data(); $("#reqText").value=d.text||""; $("#reqStatus").textContent=d.savedAt?"List saved "+new Date(d.savedAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"";} },()=>{});
+  reqUnsub=db.doc("requests/"+k).onSnapshot(s=>{ if(s.exists&&!reqDirty&&!s.metadata.hasPendingWrites){const d=s.data(); $("#reqText").value=d.text||""; reqOrd={grocery:d.grocery||"",amazon:d.amazon||""}; showOrd(); $("#reqStatus").textContent=d.savedAt?"List saved "+new Date(d.savedAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"";} },()=>{});
 }
 $("#reqText").addEventListener("input",()=>{reqDirty=true;$("#planStatus").textContent="Unsaved changes";});
+["Grocery","Amazon"].forEach(id=>$("#ord"+id).addEventListener("change",async e=>{
+  if(!db) return; const k=id.toLowerCase(), prev=reqOrd[k];
+  reqOrd[k]=e.target.checked?ordStamp():""; showOrd(); $("#reqStatus").textContent="Saving…";
+  const at=Date.now();
+  try{ await db.doc("requests/"+iso(wk)).set({week:iso(wk),text:$("#reqText").value,savedAt:at,grocery:reqOrd.grocery,amazon:reqOrd.amazon}); reqDirty=false;
+       $("#reqStatus").textContent=id+(e.target.checked?" marked ordered.":" unmarked."); }
+  catch(err){ reqOrd[k]=prev; showOrd(); $("#reqStatus").textContent="Couldn't save that. Check your connection and try again."; }
+}));
 $("#gotoReq").addEventListener("click",()=>{ wk=monday(parse($("#date").value)); planDirty=false; $("#tab-plan").click(); renderPlan(); $("#reqText").scrollIntoView({block:"center"}); $("#reqText").focus(); });
 // one Save button for the whole week: saves the plan (Mom & Dad) and the nanny's list, whichever changed
 $("#savePlan").addEventListener("click",async()=>{
@@ -494,12 +547,12 @@ $("#savePlan").addEventListener("click",async()=>{
     const days={};
     DAYS.forEach(d=>{days[d]={};const o=draft[d]||{};ALLF.forEach(f=>days[d][f]=((o[f])||"").trim());
       Object.keys(o).forEach(f=>{if(isExtraKey(f)){const v=(o[f]||"").trim();if(v)days[d][f]=v;}});});
-    try{ await db.doc("plans/"+iso(wk)).set({week:iso(wk),theme:draftTheme.trim(),days}); planDirty=false; }
+    try{ await db.doc("plans/"+iso(wk)).set({week:iso(wk),theme:draftTheme.trim(),notes:draftNotes.trim(),days}); planDirty=false; }
     catch(e){ failed=true; if(e.code==="not_granted"||e.code==="permission_denied") planDirty=false; msgs.push(e.code==="not_granted"||e.code==="permission_denied"?"Plan changes weren't saved — only Mom & Dad can change the plan.":"Couldn't save the plan ("+(e.code||"error")+"). Check your connection and tap Save week again."); }
   }
   if(reqDirty){
     const at=Date.now();
-    try{ await db.doc("requests/"+iso(wk)).set({week:iso(wk),text:$("#reqText").value,savedAt:at}); reqDirty=false;
+    try{ await db.doc("requests/"+iso(wk)).set({week:iso(wk),text:$("#reqText").value,savedAt:at,grocery:reqOrd.grocery,amazon:reqOrd.amazon}); reqDirty=false;
          $("#reqStatus").textContent="List saved "+new Date(at).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}); }
     catch(e){ failed=true; msgs.push("Couldn't save the list ("+(e.code||"error")+"). Check your connection and tap Save week again."); }
   }
@@ -527,6 +580,7 @@ SVG.cup=`<svg viewBox="0 0 70 50" aria-hidden="true"><path d="M8 10 H50 V24 C50 
 SVG.watch=`<svg viewBox="0 0 50 60" aria-hidden="true"><rect x="21" y="2" width="8" height="7" rx="2" fill="var(--sun)"/><circle cx="25" cy="34" r="22" fill="var(--sun)"/><circle cx="25" cy="34" r="17" fill="var(--skin-egg)"/><path d="M25 34 V22 M25 34 L33 38" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/><g fill="var(--ink)"><circle cx="25" cy="19.5" r="1.3"/><circle cx="39.5" cy="34" r="1.3"/><circle cx="25" cy="48.5" r="1.3"/><circle cx="10.5" cy="34" r="1.3"/></g></svg>`;
 SVG.card=`<svg viewBox="0 0 40 56" aria-hidden="true"><rect x="2" y="2" width="36" height="52" rx="4" fill="var(--skin-egg)" stroke="var(--ink)" stroke-width="1.5"/><path d="M20 40 C10 33 8 29 8 25 C8 21 11 19 14 19 C17 19 19 21 20 23 C21 21 23 19 26 19 C29 19 32 21 32 25 C32 29 30 33 20 40Z" fill="var(--coral)"/><text x="6" y="13" font-size="9" font-family="Georgia,serif" fill="var(--coral)">A</text></svg>`;
 SVG.bottle=`<svg viewBox="0 0 24 50" aria-hidden="true"><rect x="9" y="2" width="6" height="8" rx="1.5" fill="var(--sun)"/><path d="M9 10 V16 C3 19 2 24 2 30 V44 C2 47 4 48 6 48 H18 C20 48 22 47 22 44 V30 C22 24 21 19 15 16 V10Z" fill="var(--sky-soft)" stroke="var(--brand)" stroke-width="1.5"/><path d="M3 34 H21 V44 C21 46 20 47 18 47 H6 C4 47 3 46 3 44Z" fill="var(--grape)" opacity=".7"/><rect x="5" y="22" width="14" height="8" rx="1" fill="var(--skin-egg)" stroke="var(--brand)" stroke-width="1"/></svg>`;
+SVG.rabbit=`<svg viewBox="0 0 60 80" aria-hidden="true"><path d="M24 22c-4-14 0-22 4-22s4 10 2 22M34 22c1-14 7-21 11-20s0 12-5 22" fill="#fff" stroke="currentColor" stroke-width="2"/><path d="M27 12c-1-6 0-9 2-9M38 12c2-6 5-8 7-8" stroke="#F7A9C4" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="32" cy="32" r="13" fill="#fff" stroke="currentColor" stroke-width="2"/><circle cx="37" cy="30" r="1.8" fill="currentColor"/><circle cx="44" cy="35" r="1.6" fill="#F27BA8"/><path d="M14 52c6-8 30-8 34 2 4 9 3 20-8 24H22c-8-5-11-16-8-26z" fill="var(--coral)" stroke="currentColor" stroke-width="2"/><path d="M22 47l9 6 9-6" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="62" r="7.5" fill="var(--sun)" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="62" r="5" fill="#fff"/><path d="M10 62v-3.5M10 62l2.5 1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
 SVG.key=`<svg viewBox="0 0 60 30" aria-hidden="true"><circle cx="12" cy="15" r="9" fill="none" stroke="currentColor" stroke-width="4"/><path d="M21 15 H56 M46 15 V23 M53 15 V21" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`;
 SVG.heart=`<svg viewBox="0 0 40 40" aria-hidden="true"><path fill="currentColor" d="M20 35 C6 25 2 18 2 12 C2 6 7 3 11 3 C15 3 18 6 20 9 C22 6 25 3 29 3 C33 3 38 6 38 12 C38 18 34 25 20 35Z"/></svg>`;
 const sticker=(icon,word,rot,cls="")=>`<span class="sticker ${cls}" style="--r:${rot}deg"><span class="si">${SVG[icon]}</span><b>${word}</b></span>`;
@@ -542,8 +596,8 @@ const SKINS=[
   icon:"star", praise:["Magical!","Sparkly!","Fairy-rific!"],
   ideas:["Build a fairy house from sticks, leaves and stones","Fairy garden walk: collect 5 different leaves or petals","Make a fairy wand from a stick, ribbon and a paper star","Tiptoe fairy dance — freeze when the music stops","Count \"magic stones\" (pebbles) into cups 1–10","Mix fairy potions: colored water with droppers","Read a fairy story, then draw your own fairy"]},
  {cls:"th-alice",test:/alice|wonderland/i,today:"Down the rabbit hole for today's plan!",plan:"Plan a curious week of snacks, learning and adventures.",
-  scene:()=>`<span class="a-card">${SVG.card}</span><span class="a-watch">${SVG.watch}</span><span class="a-bottle">${SVG.bottle}</span><span class="a-cup">${SVG.cup}</span><span class="a-key">${SVG.key}</span>`,
-  trail:()=>SVG.heart.repeat(6), stickers:()=>sticker("cup","Tea time!",-7,"st1")+sticker("card","Wonderland",6,"st2"),
+  scene:()=>`<span class="a-card">${SVG.card}</span><span class="a-watch">${SVG.watch}</span><span class="a-bottle">${SVG.bottle}</span><span class="a-cup">${SVG.cup}</span><span class="a-key">${SVG.key}</span><span class="a-rabbit">${SVG.rabbit}</span>`,
+  trail:()=>SVG.heart.repeat(6), stickers:()=>sticker("cup","Tea time!",-7,"st1")+sticker("watch","I'm late!",6,"st2"),
   icon:"heart", praise:["Curiouser!","Wonderful!","Mad-ly good!"],
   ideas:["Mad tea party: pour, serve and share pretend tea","Sort playing cards by suit and color (hearts, spades, diamonds, clubs)","\"Drink Me\" potions: mix colored water with droppers","Big and small: line up toys biggest to smallest, like Alice growing and shrinking","Follow the rabbit: a timed scavenger hunt with a pocket watch","Paint paper roses red with Q-tips","Read an Alice picture book and retell the story"]},
  {cls:"th-gen",test:/\S/,today:"Have fun with this week's theme!",plan:"Plan a week of snacks, learning and adventures around the theme.",
@@ -582,16 +636,17 @@ const wkLabel=k=>parse(k).toLocaleDateString("en-US",{month:"short",day:"numeric
 const stampLabel=ms=>ms?new Date(ms).toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
 function renderLists(){
   const box=$("#listsBox"); if(!box) return;
-  const L=reqAll.filter(r=>(r.text||"").trim());
-  box.innerHTML=`<div class="sec c-notes">Nanny's lists (what she needs)</div>`+(L.length?L.map(r=>`<div class="entry"><h3><span>Week of ${esc(wkLabel(r.week))}</span><span class="status">${esc(stampLabel(r.savedAt))}</span></h3><div class="listtext">${esc(r.text)}</div></div>`).join(""):`<p class="empty">No lists yet. Her lists from the Week plan tab show up here.</p>`);
-  const cur=iso(wk), others=L.filter(r=>r.week!==cur);
+  const L=reqAll.filter(r=>(r.text||"").trim()||r.grocery||r.amazon);
+  const tags=r=>(r.grocery?`<span class="ordtag">✓ Grocery ordered ${esc(r.grocery)}</span>`:"")+(r.amazon?`<span class="ordtag">✓ Amazon ordered ${esc(r.amazon)}</span>`:"");
+  box.innerHTML=`<div class="sec c-notes">Nanny's lists (what she needs)</div>`+(L.length?L.map(r=>`<div class="entry"><h3><span>Week of ${esc(wkLabel(r.week))}</span><span class="status">${esc(stampLabel(r.savedAt))}</span></h3>${tags(r)?`<div>${tags(r)}</div>`:""}<div class="listtext">${esc(r.text)}</div></div>`).join(""):`<p class="empty">No lists yet. Her lists from the Week plan tab show up here.</p>`);
+  const cur=iso(wk), others=L.filter(r=>r.week!==cur&&(r.text||"").trim());
   $("#reqOther").innerHTML=others.length?`<p class="note">She also has a list for ${others.map(r=>`<button class="linkish" data-gowk="${r.week}">week of ${esc(wkLabel(r.week))}</button>`).join(", ")}. You can see every list under <b>Past days</b>.</p>`:"";
 }
 $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[data-gowk]"); if(!b) return;
   if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
   wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
 // keep every phone on the newest version: if a newer page is published, reload (only when nothing is unsaved)
-const BUILD="2026-11-06d";
+const BUILD="2026-11-06e";
 async function checkForUpdate(){
   try{
     const t=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(r=>r.text());
