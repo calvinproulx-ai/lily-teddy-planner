@@ -3,7 +3,10 @@
 <title>Lily &amp; Teddy Planner</title>
 <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Lily%20%26%20Teddy%22%2C%22display%22%3A%22standalone%22%7D">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lily &amp; Teddy">
+<link rel="preconnect" href="https://script.google.com" crossorigin><link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <script src="config.js"></script>
+<script>/* start loading the family sheet right away, while the rest of the page loads */
+try{var __u=(window.PLANNER_API_URL||"").trim();if(/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(__u))window.__early=fetch(__u,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"getAll"}),redirect:"follow"}).then(function(r){return r.json()}).catch(function(){return null});}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cherry+Swash:wght@700&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
 <style>html{color-scheme:light}body{margin:0;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -684,7 +687,7 @@ $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[dat
   if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
   wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
 // keep every phone on the newest version: if a newer page is published, reload (only when nothing is unsaved)
-const BUILD="2026-11-11a";
+const BUILD="2026-11-11b";
 async function checkForUpdate(){
   try{
     const t=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(r=>r.text());
@@ -724,7 +727,7 @@ function makeDb(){
       get:async()=>docSnap(c,id)};},
     collection(c){const q={t:"col",c,orderBy(f,dir){q.ob=[f,dir];return q},limit(n){q.n=n;return q},
       onSnapshot:fn=>sub({t:"col",c,ob:q.ob,n:q.n,fn})};return q;},
-    async refresh(){const all=await gs("getAll");cache.plans=all.plans||{};cache.reports=all.reports||{};cache.requests=all.requests||{};subs.forEach(emit);}
+    async refresh(){let all=null;if(window.__early){const j=await window.__early;window.__early=null;if(j&&j.ok)all=j.data;}if(!all)all=await gs("getAll");cache.plans=all.plans||{};cache.reports=all.reports||{};cache.requests=all.requests||{};subs.forEach(emit);}
   };
   return api;
 }
