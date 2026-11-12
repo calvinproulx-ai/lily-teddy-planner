@@ -145,6 +145,9 @@ details.grp .dgrid{padding:0 0 12px}
 @media (max-width:420px){.sticker.st2{display:none}.dh-txt{max-width:62%}.dh-title{font-size:22px}}
 #reqText{min-height:140px}
 #momNotes{min-height:80px}
+.picktog{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--surface);cursor:pointer}
+.picktog input{width:16px;height:16px;margin:0;accent-color:var(--brand)}
+.fld input.txt{font-size:14px}
 .momnote{background:var(--grape-soft,#EEE7F7);border:2px dashed var(--grape,#7D5BA6);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
 .momnote b{color:var(--grape,#7D5BA6)}
 .ordbox{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 12px}
@@ -287,6 +290,7 @@ details li{margin:2px 0}
     <div class="fld weekTheme"><label for="weekTheme">Theme for the week</label><input id="weekTheme" placeholder="e.g. Dinosaurs, Ocean, Farm (optional)"></div>
     <div class="bar viewbar">
       <div class="seg2" id="viewSeg" role="group" aria-label="Show plan"><button data-v="day" aria-pressed="true">By day</button><button data-v="type" aria-pressed="false">By type</button></div>
+      <label class="picktog"><input type="checkbox" id="usePicks"> Dropdowns</label>
       <span class="grow"></span>
       <button class="ghost" id="expandAll">Expand all</button><button class="ghost" id="collapseAll">Collapse all</button>
     </div>
@@ -487,11 +491,14 @@ let draftNotes="", draftTheme="", draft={}, draftWk=null, planDirty=false, planV
 function loadDraft(){draft=JSON.parse(JSON.stringify((plan[iso(wk)]||{}).days||{}));draftTheme=(plan[iso(wk)]||{}).theme||"";draftNotes=(plan[iso(wk)]||{}).notes||"";draftWk=iso(wk);planDirty=false;}
 function markDirty(){planDirty=true;$("#planStatus").textContent="Unsaved changes";}
 const dlOf=Object.fromEntries(FIELDS);
+let usePicks=false; try{usePicks=localStorage.getItem("ltPicks")==="1";}catch(e){}
+const dlFor=f=>/^(amSnack|lunch|pmSnack)$/.test(f)?"dl-food":/learn/.test(f)?"dl-learn":"dl-act";
 function fld(d,f){
   const val=(draft[d]||{})[f]||"", lab=PLAN_LABELS[f]||labelFor(f), id=`p-${d}-${f}`;
   if(f==="theme") return `<div class="fld"><label for="${id}">${lab}</label><input id="${id}" data-d="${d}" data-f="${f}" value="${esc(val)}" placeholder="Type a theme (optional)"></div>`;
-  const groups=optsFor(f), inList=!val||groups.some(([,l])=>l.includes(val));
   const rmb=isExtraKey(f)?`<button class="rm" data-rmplan="${f}" data-d="${d}" aria-label="Remove ${lab}">×</button>`:"";
+  if(!usePicks) return `<div class="fld"><label for="${id}">${lab}${rmb}</label><input class="txt" id="${id}" data-d="${d}" data-f="${f}" value="${esc(val)}" placeholder="Type here…" list="${dlFor(f)}" autocomplete="off"></div>`;
+  const groups=optsFor(f), inList=!val||groups.some(([,l])=>l.includes(val));
   return `<div class="fld"><label for="${id}">${lab}${rmb}</label><select id="${id}" data-d="${d}" data-f="${f}" class="pick"><option value="">— Choose —</option><option value="__other"${inList?"":" selected"}>✎ Other (type your own)…</option>`+
     groups.map(([g,l])=>`<optgroup label="${esc(g)}">${l.map(o=>`<option${o===val?" selected":""}>${esc(o)}</option>`).join("")}</optgroup>`).join("")+
     `</select>`+
@@ -544,6 +551,8 @@ $("#planBody").addEventListener("click",e=>{
 $("#planBody").addEventListener("input",e=>{const i=e.target;if(i.tagName!=="INPUT"||!i.dataset.f)return;setVal(i.dataset.d,i.dataset.f,i.value);});
 $("#planBody").addEventListener("change",e=>{const s=e.target.closest("select.pick");if(!s)return;const o=document.getElementById(s.id+"-o");
   o.hidden=s.value!=="__other"; if(s.value==="__other"){setVal(s.dataset.d,s.dataset.f,o.value);o.focus();} else setVal(s.dataset.d,s.dataset.f,s.value);});
+$("#usePicks").checked=usePicks;
+$("#usePicks").addEventListener("change",e=>{usePicks=e.target.checked;try{localStorage.setItem("ltPicks",usePicks?"1":"0")}catch(err){}renderPlan();});
 $("#momNotes").addEventListener("input",e=>{draftNotes=e.target.value;markDirty();});
 $("#weekTheme").addEventListener("input",e=>{draftTheme=e.target.value;markDirty();clearTimeout(window._thT);window._thT=setTimeout(renderPlan,500);applyTheme("#v-plan",draftTheme,"#planBanner",esc(draftTheme),"");});
 // nanny's weekly list
@@ -687,7 +696,7 @@ $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[dat
   if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
   wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
 // keep every phone on the newest version: if a newer page is published, reload (only when nothing is unsaved)
-const BUILD="2026-11-11b";
+const BUILD="2026-11-12a";
 async function checkForUpdate(){
   try{
     const t=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(r=>r.text());
