@@ -557,8 +557,9 @@ $("#momNotes").addEventListener("input",e=>{draftNotes=e.target.value;markDirty(
 $("#weekTheme").addEventListener("input",e=>{draftTheme=e.target.value;markDirty();clearTimeout(window._thT);window._thT=setTimeout(renderPlan,500);applyTheme("#v-plan",draftTheme,"#planBanner",esc(draftTheme),"");});
 // nanny's weekly list
 let reqWk=null, reqUnsub=null, reqDirty=false, reqOrd={grocery:"",amazon:""};
+const fmtOrd=v=>{if(!v)return "";const d=new Date(v);return isNaN(d)||!/\d{4}/.test(String(v))?String(v):d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});};
 const ordStamp=()=>new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
-function showOrd(){ ["grocery","amazon"].forEach(k=>{const id=k==="grocery"?"Grocery":"Amazon"; $("#ord"+id).checked=!!reqOrd[k]; $("#ord"+id+"At").textContent=reqOrd[k]?reqOrd[k]:"";}); }
+function showOrd(){ ["grocery","amazon"].forEach(k=>{const id=k==="grocery"?"Grocery":"Amazon"; $("#ord"+id).checked=!!reqOrd[k]; $("#ord"+id+"At").textContent=fmtOrd(reqOrd[k]);}); }
 function loadReq(){
   const k=iso(wk); if(reqWk===k) return; reqWk=k; reqDirty=false; $("#reqText").value=""; $("#reqStatus").textContent=""; reqOrd={grocery:"",amazon:""}; showOrd();
   $("#reqHead").textContent="Nanny's list for the week of "+wk.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" — what she needs or wants";
@@ -687,7 +688,7 @@ const stampLabel=ms=>ms?new Date(ms).toLocaleString([], {weekday:"short",month:"
 function renderLists(){
   const box=$("#listsBox"); if(!box) return;
   const L=reqAll.filter(r=>(r.text||"").trim()||r.grocery||r.amazon);
-  const tags=r=>(r.grocery?`<span class="ordtag">✓ Grocery ordered ${esc(r.grocery)}</span>`:"")+(r.amazon?`<span class="ordtag">✓ Amazon ordered ${esc(r.amazon)}</span>`:"");
+  const tags=r=>(r.grocery?`<span class="ordtag">✓ Grocery ordered ${esc(fmtOrd(r.grocery))}</span>`:"")+(r.amazon?`<span class="ordtag">✓ Amazon ordered ${esc(fmtOrd(r.amazon))}</span>`:"");
   box.innerHTML=`<div class="sec c-notes">Nanny's lists (what she needs)</div>`+(L.length?L.map(r=>`<div class="entry"><h3><span>Week of ${esc(wkLabel(r.week))}</span><span class="status">${esc(stampLabel(r.savedAt))}</span></h3>${tags(r)?`<div>${tags(r)}</div>`:""}<div class="listtext">${esc(r.text)}</div></div>`).join(""):`<p class="empty">No lists yet. Her lists from the Week plan tab show up here.</p>`);
   const cur=iso(wk), others=L.filter(r=>r.week!==cur&&(r.text||"").trim());
   $("#reqOther").innerHTML=others.length?`<p class="note">She also has a list for ${others.map(r=>`<button class="linkish" data-gowk="${r.week}">week of ${esc(wkLabel(r.week))}</button>`).join(", ")}. You can see every list under <b>Past days</b>.</p>`:"";
@@ -696,7 +697,7 @@ $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[dat
   if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
   wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
 // keep every phone on the newest version: if a newer page is published, reload (only when nothing is unsaved)
-const BUILD="2026-11-12a";
+const BUILD="2026-11-14a";
 async function checkForUpdate(){
   try{
     const t=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(r=>r.text());
