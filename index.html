@@ -145,6 +145,16 @@ details.grp .dgrid{padding:0 0 12px}
 @media (max-width:420px){.sticker.st2{display:none}.dh-txt{max-width:62%}.dh-title{font-size:22px}}
 #reqText{min-height:140px}
 #momNotes{min-height:80px}
+.offrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0 2px}
+.offtog{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:bold;border:2px solid var(--line);border-radius:999px;padding:6px 12px 6px 9px;background:var(--surface);cursor:pointer;min-height:38px}
+.offtog input{width:18px;height:18px;margin:0;accent-color:var(--muted)}
+.offtog:has(input:checked){border-color:var(--muted);background:var(--bg)}
+.offwhy{flex:1;min-width:150px;font-size:13px;padding:7px 9px}
+.dcard.isoff{opacity:.92}.dcard.isoff>.dhead{background:var(--muted)!important}
+.offmsg{font-size:13px;color:var(--muted);background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin:2px 0 4px}
+.offcard{background:var(--surface);border:2px dashed var(--line);border-radius:14px;padding:18px 16px;text-align:center;margin:6px 0 12px}
+.offcard .big{font-size:20px;font-weight:bold;color:var(--ink);margin-bottom:4px}
+.offcard p{margin:0;color:var(--muted);font-size:13px}
 .picktog{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--surface);cursor:pointer}
 .picktog input{width:16px;height:16px;margin:0;accent-color:var(--brand)}
 .fld input.txt{font-size:14px}
@@ -412,6 +422,7 @@ function renderChecklist(){
   if(isDino(th)){const sk=skinFor(th); applyTheme("#v-today",th,"#themeBox",esc(th),"","");}
   else { applyTheme("#v-today","","#themeBox","","");  $("#themeBox").hidden=!th; $("#themeBox").className=th?"note":""; $("#themeBox").innerHTML=th?`<b>This week's theme:</b> ${esc(th)}`:""; }
   { const pn=((plan[iso(monday(parse(ds)))]||{}).notes||"").trim(); $("#momToday").hidden=!pn; $("#momToday").innerHTML=pn?`<b>Note from Mom &amp; Dad:</b> ${esc(pn)}`:""; }
+  if((p.off||"").trim()){ $("#checklist").innerHTML=`<div class="offcard"><div class="big">Day off</div><p>${esc(p.off)} · nothing to check off today.</p></div>`; $("#notes").value=report.notes||""; return; }
   const base=Object.fromEntries(ITEMS.filter(i=>i.k).map(i=>[i.k,i]));
   const mk=(k,proto,lab)=>Object.assign({},proto,{k,label:lab});
   const list=[ITEMS[0],base.amSnack,base.lunch,base.pmSnack,base.treats,ITEMS[5],
@@ -529,6 +540,8 @@ function fld(d,f){
 }
 const filled=(d,fs)=>fs.filter(f=>((draft[d]||{})[f]||"").trim()).length;
 const isOpen=(k,def)=>k in openState?openState[k]:def;
+const offOf=d=>((draft[d]||{}).off||"").trim();
+const offRow=d=>{const off=offOf(d);return `<div class="offrow"><label class="offtog"><input type="checkbox" data-off="${d}" ${off?"checked":""}> Day off</label>${off?`<input class="offwhy" data-offwhy="${d}" value="${esc(off==="Day off"?"":off)}" placeholder="Why? e.g. Nanny PTO, Holiday" aria-label="Reason for ${d} off">`:""}</div>`;};
 function renderPlan(){
   if(draftWk!==iso(wk)||!planDirty) loadDraft();
   $("#wkLabel").textContent="Week of "+wk.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
@@ -543,12 +556,13 @@ function renderPlan(){
   const cnt=(n,of)=>`<span class="cnt">${n}/${of} planned</span>`;
   if(planView==="day"){
     $("#planBody").innerHTML=DAYS.map((d,i)=>{const k="day-"+d, dt=dates[i];
-      return `<details class="dcard d${i} ${i===todayIdx?"today":""}" data-k="${k}" ${isOpen(k,i===defDay)?"open":""}><summary class="dhead"><span class="chev"></span>${d}<span class="dmeta">${dt.toLocaleDateString("en-US",{month:"short",day:"numeric"})}${i===todayIdx?" • today":""} • ${(()=>{const fs=["food","learn","act"].flatMap(g=>groupFields(g,d));return cnt(filled(d,fs),fs.length)})()}</span></summary><div class="dbody">${(()=>{const sk=skinFor(draftTheme);return sk&&sk.ideas.length?`<div class="idea"><span class="si">${SVG[sk.icon]}</span><span><b>Theme idea:</b> ${esc(sk.ideas[i%sk.ideas.length])}</span></div>`:""})()}`+
-        GROUPS.map(([gk,gl])=>{const kk=`${k}-${gk}`,fs=groupFields(gk,d);return `<details class="grp c-${gk}" data-k="${kk}" ${isOpen(kk,true)?"open":""}><summary class="dgroup"><span class="chev"></span>${gl}${cnt(filled(d,fs),fs.length)}</summary><div class="dgrid">${groupHtml(gk,d)}</div></details>`}).join("")+`</div></details>`;}).join("");
+      const off=offOf(d);
+      return `<details class="dcard d${i} ${i===todayIdx?"today":""} ${off?"isoff":""}" data-k="${k}" ${isOpen(k,i===defDay)?"open":""}><summary class="dhead"><span class="chev"></span>${d}<span class="dmeta">${dt.toLocaleDateString("en-US",{month:"short",day:"numeric"})}${i===todayIdx?" • today":""} • ${off?`<span class="cnt">Off: ${esc(off)}</span>`:(()=>{const fs=["food","learn","act"].flatMap(g=>groupFields(g,d));return cnt(filled(d,fs),fs.length)})()}</span></summary><div class="dbody">${offRow(d)}`+(off?`<div class="offmsg">No nanny day. The plan fields are hidden; untick <b>Day off</b> to plan this day.</div></div></details>`:`${(()=>{const sk=skinFor(draftTheme);return sk&&sk.ideas.length?`<div class="idea"><span class="si">${SVG[sk.icon]}</span><span><b>Theme idea:</b> ${esc(sk.ideas[i%sk.ideas.length])}</span></div>`:""})()}`+
+        GROUPS.map(([gk,gl])=>{const kk=`${k}-${gk}`,fs=groupFields(gk,d);return `<details class="grp c-${gk}" data-k="${kk}" ${isOpen(kk,true)?"open":""}><summary class="dgroup"><span class="chev"></span>${gl}${cnt(filled(d,fs),fs.length)}</summary><div class="dgrid">${groupHtml(gk,d)}</div></details>`}).join("")+`</div></details>`);}).join("");
   } else {
     $("#planBody").innerHTML=GROUPS.map(([gk,gl],gi)=>{const k="type-"+gk; const tot=DAYS.reduce((s,d)=>s+filled(d,groupFields(gk,d)),0), all=DAYS.reduce((s,d)=>s+groupFields(gk,d).length,0);
       return `<details class="dcard tcard c-${gk}" data-k="${k}" ${isOpen(k,gi===0)?"open":""}><summary class="dhead"><span class="chev"></span>${gl}<span class="dmeta">${cnt(tot,all)}</span></summary><div class="dbody">`+
-        DAYS.map((d,i)=>{const kk=`${k}-${d}`,fs=groupFields(gk,d);return `<details class="grp" data-k="${kk}" ${isOpen(kk,true)?"open":""}><summary class="dgroup"><span class="chev"></span>${d} ${dates[i].toLocaleDateString("en-US",{month:"short",day:"numeric"})}${i===todayIdx?" • today":""}${cnt(filled(d,fs),fs.length)}</summary><div class="dgrid">${groupHtml(gk,d)}</div></details>`}).join("")+`</div></details>`;}).join("");
+        DAYS.map((d,i)=>{const kk=`${k}-${d}`,fs=groupFields(gk,d),off=offOf(d);return off?`<div class="dgroup" style="padding:6px 0">${d} ${dates[i].toLocaleDateString("en-US",{month:"short",day:"numeric"})} <span class="cnt">Off: ${esc(off)}</span></div>`:`<details class="grp" data-k="${kk}" ${isOpen(kk,true)?"open":""}><summary class="dgroup"><span class="chev"></span>${d} ${dates[i].toLocaleDateString("en-US",{month:"short",day:"numeric"})}${i===todayIdx?" • today":""}${cnt(filled(d,fs),fs.length)}</summary><div class="dgrid">${groupHtml(gk,d)}</div></details>`}).join("")+`</div></details>`;}).join("");
   }
   lockPlan();
 }
@@ -571,8 +585,8 @@ $("#planBody").addEventListener("click",e=>{
   const r=e.target.closest("button[data-rmplan]");
   if(r){e.preventDefault();delete (draft[r.dataset.d]||{})[r.dataset.rmplan];markDirty();renderPlan();}
 });
-$("#planBody").addEventListener("input",e=>{const i=e.target;if(i.tagName!=="INPUT"||!i.dataset.f)return;setVal(i.dataset.d,i.dataset.f,i.value);});
-$("#planBody").addEventListener("change",e=>{const s=e.target.closest("select.pick");if(!s)return;const o=document.getElementById(s.id+"-o");
+$("#planBody").addEventListener("input",e=>{const i=e.target;if(i.dataset.offwhy){const o=draft[i.dataset.offwhy]=draft[i.dataset.offwhy]||{};o.off=i.value.trim()||"Day off";markDirty();return;}if(i.tagName!=="INPUT"||!i.dataset.f)return;setVal(i.dataset.d,i.dataset.f,i.value);});
+$("#planBody").addEventListener("change",e=>{const c=e.target;if(c.dataset&&c.dataset.off){const o=draft[c.dataset.off]=draft[c.dataset.off]||{};if(c.checked)o.off=o.off||"Day off";else delete o.off;markDirty();renderPlan();if(c.checked){const w=document.querySelector(`[data-offwhy="${c.dataset.off}"]`);if(w)w.focus();}return;}const s=e.target.closest("select.pick");if(!s)return;const o=document.getElementById(s.id+"-o");
   o.hidden=s.value!=="__other"; if(s.value==="__other"){setVal(s.dataset.d,s.dataset.f,o.value);o.focus();} else setVal(s.dataset.d,s.dataset.f,s.value);});
 $("#usePicks").checked=usePicks;
 $("#usePicks").addEventListener("change",e=>{usePicks=e.target.checked;try{localStorage.setItem("ltPicks",usePicks?"1":"0")}catch(err){}renderPlan();});
@@ -608,7 +622,7 @@ $("#savePlan").addEventListener("click",async()=>{
   if(planDirty){
     const days={};
     DAYS.forEach(d=>{days[d]={};const o=draft[d]||{};ALLF.forEach(f=>days[d][f]=((o[f])||"").trim());
-      Object.keys(o).forEach(f=>{if(isExtraKey(f)){const v=(o[f]||"").trim();if(v)days[d][f]=v;}});});
+      Object.keys(o).forEach(f=>{if(isExtraKey(f)){const v=(o[f]||"").trim();if(v)days[d][f]=v;}});if((o.off||"").trim())days[d].off=o.off.trim();});
     try{ await db.doc("plans/"+iso(wk)).set({week:iso(wk),theme:draftTheme.trim(),notes:draftNotes.trim(),days}); planDirty=false; }
     catch(e){ failed=true; if(e.code==="not_granted"||e.code==="permission_denied") planDirty=false; msgs.push(e.code==="not_granted"||e.code==="permission_denied"?"Plan changes weren't saved — only Mom & Dad can change the plan.":"Couldn't save the plan ("+(e.code||"error")+"). Check your connection and tap Save week again."); }
   }
@@ -729,7 +743,7 @@ $("#reqOther").addEventListener("click",e=>{const b=e.target.closest("button[dat
   if(planDirty||reqDirty){$("#planStatus").textContent="Save first, then open the other week.";return;}
   wk=parse(b.dataset.gowk); renderPlan(); renderLists(); window.scrollTo({top:0,behavior:"smooth"});});
 // keep every phone on the newest version: if a newer page is published, reload (only when nothing is unsaved)
-const BUILD="2026-11-21a";
+const BUILD="2026-11-22a";
 async function checkForUpdate(){
   try{
     const t=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(r=>r.text());
